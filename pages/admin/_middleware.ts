@@ -1,0 +1,22 @@
+import { NextRequest, NextResponse, NextFetchEvent } from "next/server";
+import { getToken } from 'next-auth/jwt';
+
+
+
+export async function middleware(req: NextRequest | any, ev: NextFetchEvent) {
+
+    const session: any = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+   
+    if (!session) {
+      const requestedPage = req.page.name;
+      return NextResponse.redirect(`localhost:3000/auth/login?p=${ requestedPage }`);
+    }
+
+    const validRoles = ['admin','super-user','SEO'];
+
+    if ( !validRoles.includes( session.user.rol ) ) {
+      return NextResponse.redirect('localhost:3000/');
+  }
+   
+    return NextResponse.next();
+  }
